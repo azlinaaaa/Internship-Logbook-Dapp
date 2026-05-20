@@ -1,4 +1,20 @@
 import os
+
+# 1. TRICK UTAMA: Kita potong jalan fungsi os.makedirs bawaan Python!
+orig_makedirs = os.makedirs
+def fake_makedirs(name, mode=0o777, exist_ok=False):
+    # Kalau Flask-SQLAlchemy gila ni cuba buat folder 'instance' dekat Vercel, 
+    # kita pintas dan bagi return kosong (buat bodoh jek) supaya dia tak crash.
+    if 'instance' in name:
+        return
+    return orig_makedirs(name, mode, exist_ok)
+
+# Gantikan fungsi asal dengan fungsi tipu kita
+os.makedirs = fake_makedirs
+
+# ==========================================
+# Baru masuk import-import yang lain
+# ==========================================
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user
@@ -9,19 +25,14 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# 1. Create SQLAlchemy objek KOSONG dulu (jangan letak 'app' kat dalam)
-db = SQLAlchemy()
-
 app = Flask(__name__)
-
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 
-# 2. Paksa guna temporary path untuk SQLite database
+# 2. Paksa halankan database ke folder /tmp (Sebab /tmp sahaja kawasan writeable di Vercel)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/internship.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# 3. Bind app ke database guna init_app (Ini akan halang dia daripada create folder instance)
-db.init_app(app)
+db = SQLAlchemy(app)
 
 print("SECRET KEY:", os.getenv("SECRET_KEY"))
 
