@@ -9,20 +9,19 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# LAKUKAN INI: Paksa Flask untuk guna /tmp sebagai absolute path bagi instance_path
-# Serta set 'instance_relative_config=False' supaya dia tak cari /var/task lagi!
-app = Flask(__name__, instance_path='/tmp', instance_relative_config=False)
+# 1. Create SQLAlchemy objek KOSONG dulu (jangan letak 'app' kat dalam)
+db = SQLAlchemy()
+
+app = Flask(__name__)
 
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 
-# Guna path absolute /tmp untuk SQLite database
+# 2. Paksa guna temporary path untuk SQLite database
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/internship.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# SEBELUM KITA INIT: Kita paksa overwrite properties app.instance_path secara keras!
-app.instance_path = '/tmp'
-
-db = SQLAlchemy(app)
+# 3. Bind app ke database guna init_app (Ini akan halang dia daripada create folder instance)
+db.init_app(app)
 
 print("SECRET KEY:", os.getenv("SECRET_KEY"))
 
