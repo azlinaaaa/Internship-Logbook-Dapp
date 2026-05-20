@@ -1,3 +1,4 @@
+import os
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user
@@ -5,18 +6,27 @@ from flask_login import login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from stellar_utils import hash_log, store_hash_on_stellar
 from dotenv import load_dotenv
-import os
 
 load_dotenv()
 
-app = Flask(__name__)
+# PENTING: Paksa Flask guna folder /tmp sebagai instance_path dari awal!
+# Ini akan menghalang Flask daripada mencipta folder '/var/task/instance' yang dilarang oleh Vercel.
+app = Flask(__name__, instance_path='/tmp')
+
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
+
+# Tetapkan path database ke dalam folder /tmp juga
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/internship.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
 db = SQLAlchemy(app)
+
 print("SECRET KEY:", os.getenv("SECRET_KEY"))
+
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
+
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
