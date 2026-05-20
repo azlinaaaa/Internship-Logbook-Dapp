@@ -9,15 +9,18 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# PENTING: Paksa Flask guna folder /tmp sebagai instance_path dari awal!
-# Ini akan menghalang Flask daripada mencipta folder '/var/task/instance' yang dilarang oleh Vercel.
-app = Flask(__name__, instance_path='/tmp')
+# LAKUKAN INI: Paksa Flask untuk guna /tmp sebagai absolute path bagi instance_path
+# Serta set 'instance_relative_config=False' supaya dia tak cari /var/task lagi!
+app = Flask(__name__, instance_path='/tmp', instance_relative_config=False)
 
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 
-# Tetapkan path database ke dalam folder /tmp juga
+# Guna path absolute /tmp untuk SQLite database
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/internship.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# SEBELUM KITA INIT: Kita paksa overwrite properties app.instance_path secara keras!
+app.instance_path = '/tmp'
 
 db = SQLAlchemy(app)
 
