@@ -11,7 +11,7 @@ load_dotenv()
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///internship.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/internship.db'
 db = SQLAlchemy(app)
 print("SECRET KEY:", os.getenv("SECRET_KEY"))
 login_manager = LoginManager()
