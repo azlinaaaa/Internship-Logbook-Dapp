@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Future Tech</title>
+    <!-- Bootstrap 5 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <!-- Google Fonts (Poppins) -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #311042 100%);
+            --primary-glow: #06b6d4; /* Neon Cyan */
+            --secondary-glow: #d946ef; /* Neon Pink */
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Ambient Glow Background Effects */
+        body::before, body::after {
+            content: '';
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: var(--primary-glow);
+            filter: blur(120px);
+            opacity: 0.3;
+            z-index: 0;
+        }
+        body::before { top: 10%; left: 15%; background: var(--primary-glow); }
+        body::after { bottom: 10%; right: 15%; background: var(--secondary-glow); }
+
+        /* Glassmorphism Card */
+        .login-container {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            padding: 3rem;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            z-index: 10;
+            transition: all 0.3s ease;
+        }
+
+        .login-container:hover {
+            border-color: rgba(6, 182, 212, 0.3);
+            box-shadow: 0 20px 40px rgba(6, 182, 212, 0.1);
+        }
+
+        .login-header h2 {
+            color: #ffffff;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        .login-header p {
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+
+        /* Modern Input Fields */
+        .form-control-custom {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: #ffffff !important;
+            padding: 0.8rem 1.2rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control-custom:focus {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--primary-glow);
+            box-shadow: 0 0 15px rgba(6, 182, 212, 0.4);
+            outline: none;
+        }
+
+        .form-control-custom::placeholder {
+            color: #64748b;
+        }
+
+        /* Futuristic Interactive Button */
+        .btn-future {
+            background: linear-gradient(90deg, var(--primary-glow), #3b82f6);
+            border: none;
+            border-radius: 12px;
+            color: #ffffff;
+            font-weight: 600;
+            padding: 0.8rem;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(6, 182, 212, 0.3);
+        }
+
+        .btn-future:hover {
+            background: linear-gradient(90deg, #22d3ee, #2563eb);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(6, 182, 212, 0.5);
+            color: #ffffff;
+        }
+
+        .btn-future:active {
+            transform: translateY(0);
+        }
+
+        /* Extra Links */
+        .form-footer {
+            text-align: center;
+            margin-top: 1.5rem;
+        }
+        .form-footer a {
+            color: #94a3b8;
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: color 0.2s;
+        }
+        .form-footer a:hover {
+            color: var(--primary-glow);
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-container">
+    <div class="login-header text-center mb-4">
+        <h2>Welcome Back</h2>
+        <p>Enter your credentials to access the system</p>
+    </div>
+
+    <form method="POST">
+        <div class="mb-3">
+            <input type="text" name="username" class="form-control form-control-custom" placeholder="Username" required autocomplete="off">
+        </div>
+
+        <div class="mb-4">
+            <input type="password" name="password" class="form-control form-control-custom" placeholder="Password" required>
+        </div>
+
+        <button type="submit" class="btn btn-future w-100">Sign In</button>
+    </form>
+
+    <div class="form-footer">
+        <a href="#">Forgot password?</a>
+    </div>
+</div>
+
+</body>
+</html>
