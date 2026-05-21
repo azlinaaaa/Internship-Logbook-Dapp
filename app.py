@@ -1,42 +1,68 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager, UserMixin, login_user, logout_user
-from flask_login import login_required, current_user
+from flask_login import (
+    LoginManager,
+    UserMixin,
+    login_user,
+    logout_user,
+    login_required,
+    current_user
+)
 from werkzeug.security import generate_password_hash, check_password_hash
 from stellar_utils import hash_log, store_hash_on_stellar
 from dotenv import load_dotenv
 import os
 
+# Load environment variables
 load_dotenv()
 
+# Flask app
 app = Flask(__name__)
-app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
+
+# Configurations
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'fallback-secret')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///internship.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Database
 db = SQLAlchemy(app)
-print("SECRET KEY:", os.getenv("SECRET_KEY"))
+
+# Login manager
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
+# =========================
+# DATABASE MODELS
+# =========================
+
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(100), unique=True)
-    password = db.Column(db.String(200))
+    username = db.Column(db.String(100), unique=True, nullable=False)
+    password = db.Column(db.String(200), nullable=False)
 
 
 class Logbook(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    student = db.Column(db.String(100))
-    title = db.Column(db.String(200))
-    content = db.Column(db.Text)
+    student = db.Column(db.String(100), nullable=False)
+    title = db.Column(db.String(200), nullable=False)
+    content = db.Column(db.Text, nullable=False)
     log_hash = db.Column(db.String(200))
     stellar_tx = db.Column(db.String(300))
 
 
-@login_manager.user_loader
+# =========================
+# LOGIN LOADER
+# =========================
 
+@login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
+
+
+# =========================
+# ROUTES
+# =========================
 
 @app.route('/')
 def index():
@@ -46,11 +72,25 @@ def index():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        username = request.form['username']
-        password = generate_password_hash(request.form['password'])
 
-        user = User(username=username, password=password)
-        db.session.add(user)
+        username = request.form['username']
+        password = request.form['password']
+
+        # Check existing user
+        existing_user = User.query.filter_by(username=username).first()
+
+        if existing_user:
+            flash('Username already exists')
+            return redirect(url_for('register'))
+
+        hashed_password = generate_password_hash(password)
+
+        new_user = User(
+            username=username,
+            password=hashed_password
+        )
+
+        db.session.add(new_user)
         db.session.commit()
 
         flash('Registration successful')
@@ -58,43 +98,73 @@ def register():
 
     return render_template('register.html')
 
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+
     if request.method == 'POST':
+
         username = request.form['username']
         password = request.form['password']
 
         user = User.query.filter_by(username=username).first()
 
         if user and check_password_hash(user.password, password):
+
             login_user(user)
+
+            flash('Login successful')
             return redirect(url_for('dashboard'))
 
-        flash('Invalid credentials')
+        flash('Invalid username or password')
 
     return render_template('login.html')
+
 
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    logs = Logbook.query.filter_by(student=current_user.username).all()
-    return render_template('dashboard.html', logs=logs)
+
+    logs = Logbook.query.filter_by(
+        student=current_user.username
+    ).all()
+
+    return render_template(
+        'dashboard.html',
+        logs=logs
+    )
+
 
 @app.route('/submit', methods=['GET', 'POST'])
 @login_required
 def submit_log():
+
     if request.method == 'POST':
+
         title = request.form['title']
         content = request.form['content']
 
-        combined = title + content + current_user.username
+        combined = (
+            title +
+            content +
+            current_user.username
+        )
 
+        # Generate hash
         generated_hash = hash_log(combined)
 
-        stellar_response = store_hash_on_stellar(generated_hash)
+        try:
+            # Store on Stellar
+            stellar_response = store_hash_on_stellar(generated_hash)
 
-        transaction_hash = stellar_response['hash']
+            transaction_hash = stellar_response['hash']
 
+        except Exception as e:
+
+            flash(f'Stellar Error: {str(e)}')
+            return redirect(url_for('submit_log'))
+
+        # Save to database
         new_log = Logbook(
             student=current_user.username,
             title=title,
@@ -112,15 +182,25 @@ def submit_log():
 
     return render_template('submit_log.html')
 
+
 @app.route('/logout')
 @login_required
 def logout():
+
     logout_user()
+
+    flash('Logged out successfully')
+
     return redirect(url_for('index'))
 
 
-if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
+# =========================
+# MAIN
+# =========================
 
-    app.run(debug=True)
+with app.app_context():
+    db.create_all()
+
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)
