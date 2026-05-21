@@ -1,20 +1,3 @@
-import os
-
-# 1. TRICK UTAMA: Kita potong jalan fungsi os.makedirs bawaan Python!
-orig_makedirs = os.makedirs
-def fake_makedirs(name, mode=0o777, exist_ok=False):
-    # Kalau Flask-SQLAlchemy gila ni cuba buat folder 'instance' dekat Vercel, 
-    # kita pintas dan bagi return kosong (buat bodoh jek) supaya dia tak crash.
-    if 'instance' in name:
-        return
-    return orig_makedirs(name, mode, exist_ok)
-
-# Gantikan fungsi asal dengan fungsi tipu kita
-os.makedirs = fake_makedirs
-
-# ==========================================
-# Baru masuk import-import yang lain
-# ==========================================
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user
@@ -22,24 +5,18 @@ from flask_login import login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from stellar_utils import hash_log, store_hash_on_stellar
 from dotenv import load_dotenv
+import os
 
 load_dotenv()
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
-
-# 2. Paksa halankan database ke folder /tmp (Sebab /tmp sahaja kawasan writeable di Vercel)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/internship.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///internship.db'
 db = SQLAlchemy(app)
-
 print("SECRET KEY:", os.getenv("SECRET_KEY"))
-
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
-
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -143,12 +120,6 @@ def logout():
 
 
 if __name__ == '__main__':
-    
-    with app.app_context():
-        db.create_all()
-    app.run(debug=True)
-else:
-    
     with app.app_context():
         db.create_all()
 
