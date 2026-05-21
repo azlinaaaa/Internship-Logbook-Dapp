@@ -7,6 +7,11 @@
 
 An enterprise-grade, blockchain-anchored Decentralized Application (dApp) designed to transform traditional internship reporting. By combining **Python Flask** with the **Stellar Blockchain Network**, this platform enforces absolute cryptographic data integrity, prevents academic fraud, and establishes an immutable ledger of student industrial training records.
 
+### 🌐 Live Deployment
+Experience the live decentralized application instantly here:  
+👉 **[Stellar LogTrust Web App (Render)](https://internship-logbook-dapp.onrender.com/)**
+
+
 ---
 
 ## 📌 Executive Summary & Problem Statement
@@ -16,6 +21,7 @@ Traditional internship logbooks rely heavily on central databases or physical si
 * **Retroactive Modification:** Students altering past records at the end of their internship.
 * **Lack of Transparency:** Industrial supervisors and university coordinators having no decentralized method to verify if a log was legitimately written on the specified date.
 * **Data Vulnerability:** Single points of failure inherent in standard centralized storage systems.
+
 
 ### The Innovation: Stellar LogTrust
 This dApp solves these challenges by treating every daily log submission as a unique state transaction. The system compiles input data, generates a cryptographic signature, and anchors it immutably onto the Stellar Testnet Layer-1 ledger via `manage_data` operations. This establishes a high-throughput, low-cost verifiable audit trail for academic institutions.
@@ -207,9 +213,3 @@ Open your browser and navigate to `http://127.0.0.1:5000` to interact with the a
 **Norazlina Shariff**
 
 *Data Science Specialist & Blockchain Engineering Enthusiast*
-
-Focusing on bridging the gap between standard enterprise web architecture and decentralized trust networks. Developed for educational innovation and competitive dApp evaluation benchmarks.
-
-*Developed for educational innovation and competitive dApp evaluation benchmarks.*
-
-
